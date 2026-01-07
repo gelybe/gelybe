@@ -1,0 +1,20 @@
+<--""
+   Level WARNING
+   |
+   o<--"calculator_logger"
+   |   Level DEBUG
+   |   Handler <LevelFileHandler (DEBUG)>
+   |     Level DEBUG
+   |     Formatter fmt='%(levelname)s | %(name)s | %(asctime)s | %(lineno)s | %(message)s \n' datefmt=None
+   |   Handler Stream <_io.TextIOWrapper name='<stderr>' mode='w' encoding='utf-8'>
+   |     Level DEBUG
+   |     Formatter fmt='%(levelname)s | %(name)s | %(asctime)s | %(lineno)s | %(message)s \n' datefmt=None
+   |
+   o<--"utils_logger"
+       Level INFO
+       Handler TimedRotatingFile 'C:\\Users\\getto\\python_advanced1\\module_07_logging_part_2\\homework\\hw6_logging_tree\\utils.log' when='S' interval=3 backupCount=3
+         Level INFO
+         Formatter fmt='%(levelname)s | %(name)s | %(asctime)s | %(lineno)s | %(message)s \n' datefmt=None
+       Handler Stream <_io.TextIOWrapper name='<stderr>' mode='w' encoding='utf-8'>
+         Level DEBUG
+         Formatter fmt='%(levelname)s | %(name)s | %(asctime)s | %(lineno)s | %(message)s \n' datefmt=None
