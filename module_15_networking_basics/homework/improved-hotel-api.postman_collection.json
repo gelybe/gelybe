@@ -1,0 +1,346 @@
+{
+	"info": {
+		"_postman_id": "improved-hotel-api-collection",
+		"name": "improved-hotel-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Room",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.sendRequest(pm.variables.get(\"url\") + '/api/v1/rooms', (err, res) => {",
+							"    let totalRooms = res.json().rooms.length;",
+							"    pm.environment.set('totalRoomsBeforeRequest', totalRooms);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201.\", () => {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.sendRequest(pm.variables.get(\"url\") + '/api/v1/rooms', (err, res) => {",
+							"    let totalRooms = res.json().rooms.length;",
+							"    pm.test(\"Request should add new room to the service.\", () => {",
+							"        pm.expect(totalRooms).to.be.eql(pm.environment.get(\"totalRoomsBeforeRequest\") + 1)",
+							"    });",
+							"})",
+							"",
+							"pm.test(\"Response contains room data and links\", function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('room');",
+							"    pm.expect(response).to.have.property('links');",
+							"    pm.expect(response.links).to.have.property('self');",
+							"    pm.expect(response.links).to.have.property('collection');",
+							"    pm.environment.set('createdRoomId', response.room.room_id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"floor\": 1,\n    \"beds\": 1,\n    \"guest_count\": 2,\n    \"price\": 1000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/v1/rooms",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"rooms"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Rooms",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Body matches schema\", function () {",
+							"    const schema = {",
+							"        \"properties\": {",
+							"            \"rooms\": {",
+							"                \"items\": {",
+							"                    \"$id\": \"#/properties/rooms/items\",",
+							"                    \"anyOf\": [",
+							"                        {",
+							"                            \"type\": \"object\",",
+							"                            \"required\": [",
+							"                                \"room_id\",",
+							"                                \"floor\",",
+							"                                \"guest_count\",",
+							"                                \"beds\",",
+							"                                \"price\"",
+							"                            ],",
+							"                            \"properties\": {",
+							"                                \"room_id\": {",
+							"                                    \"type\": \"integer\"",
+							"                                },",
+							"                                \"floor\": {",
+							"                                    \"type\": \"integer\"",
+							"                                },",
+							"                                \"guest_count\": {",
+							"                                    \"type\": \"integer\"",
+							"                                },",
+							"                                \"beds\": {",
+							"                                    \"type\": \"integer\"",
+							"                                },",
+							"                                \"price\": {",
+							"                                    \"type\": \"integer\"",
+							"                                }",
+							"                            }",
+							"                        }",
+							"                    ]",
+							"                }",
+							"            },",
+							"            \"links\": {",
+							"                \"type\": \"object\"",
+							"            }",
+							"        }",
+							"    };",
+							"    pm.expect(tv4.validate(pm.response.json(), schema)).to.be.true;",
+							"});",
+							"",
+							"const rooms = pm.response.json().rooms;",
+							"pm.environment.set(\"roomId\", rooms[rooms.length - 1].room_id);",
+							"pm.environment.set('roomRequest', pm.request)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/v1/rooms?check_in={{checkInDate}}&check_out={{checkOutDate}}&guest_count=2",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"rooms"
+					],
+					"query": [
+						{
+							"key": "check_in",
+							"value": "{{checkInDate}}"
+						},
+						{
+							"key": "check_out",
+							"value": "{{checkOutDate}}"
+						},
+						{
+							"key": "guest_count",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Room by ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response contains room data and links\", function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('room');",
+							"    pm.expect(response).to.have.property('links');",
+							"    pm.expect(response.room.room_id).to.eql(pm.environment.get('createdRoomId'));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/api/v1/rooms/{{createdRoomId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"rooms",
+						"{{createdRoomId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.sendRequest(pm.environment.get('roomRequest'), function (err, res) {",
+							"    pm.test(\"Room resource is still accessible\", () => {",
+							"        pm.expect(res.code).to.be.eq(200);",
+							"    });",
+							"",
+							"    const responseBody = res.json();",
+							"",
+							"    const isRoomBooked = responseBody.rooms.filter((room) =>",
+							"        room.room_id == pm.environment.get('roomId')",
+							"    ).length == 0;",
+							"    ",
+							"    pm.test(\"Booked room is not accessible anymore\", () => {",
+							"        pm.expect(isRoomBooked).to.be.true;",
+							"    });",
+							"});",
+							"",
+							"",
+							"pm.sendRequest(pm.request, (err, res) => {",
+							"    pm.test(\"Can't book same room twice\", () => {",
+							"        pm.expect(res.code).to.be.eq(409); // CONFLICT",
+							"    });",
+							"})",
+							"",
+							"pm.test(\"Response contains booking data and links\", function () {",
+							"    const response = pm.response.json();",
+							"    pm.expect(response).to.have.property('booking');",
+							"    pm.expect(response).to.have.property('links');",
+							"    pm.expect(response.links).to.have.property('self');",
+							"    pm.expect(response.links).to.have.property('collection');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"booking_dates\": {\n    \"check_in\": {{checkInDate}},\n    \"check_out\": {{checkOutDate}}\n  },\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"room_id\": {{roomId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/api/v1/bookings",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"bookings"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "checkInDate",
+			"value": "20210308"
+		},
+		{
+			"key": "checkOutDate",
+			"value": "20210311"
+		},
+		{
+			"key": "createdRoomId",
+			"value": ""
+		}
+	]
+}
