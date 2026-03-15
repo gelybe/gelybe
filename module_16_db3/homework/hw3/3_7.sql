@@ -1,0 +1,4 @@
+SELECT maker
+FROM Product
+GROUP BY maker
+HAVING COUNT(DISTINCT type) >= 3;
