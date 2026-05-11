@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask_gunicorn_app
+    environment:
+      - DATABASE_URL=postgresql://skillbox_user:skillbox_pass@postgres_db:5432/skillbox_db
+      - FLASK_ENV=production
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres_db
+    networks:
+      - app_network
+    command: gunicorn -w 4 -b 0.0.0.0:8000 app:app
+
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: postgres_skillbox
+    environment:
+      - POSTGRES_USER=skillbox_user
+      - POSTGRES_PASSWORD=skillbox_pass
+      - POSTGRES_DB=skillbox_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_logs:/var/log/postgresql
+    networks:
+      - app_network
+    command: >
+      postgres
+      -c log_destination=stderr
+      -c logging_collector=on
+      -c log_directory=/var/log/postgresql
+
+volumes:
+  postgres_data:
+  postgres_logs:
+
+networks:
+  app_network:
+    driver: bridge
