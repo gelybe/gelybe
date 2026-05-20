@@ -1,0 +1,15 @@
+<html>
+<head>
+    <title>Skillbox Flask testing</title>
+</head>
+<body>
+<h1>Skillbox. Кто что приготовил?</h1>
+<ul id="navigation">
+    {% for product in products %}
+    <li>Пользователь {{ product.user.surname}} {{product.user.name}}
+        приготовил {{ product.title }}, цена: {{product.price}}
+    </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
