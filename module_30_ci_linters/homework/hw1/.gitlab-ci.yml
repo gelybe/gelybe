@@ -1,0 +1,31 @@
+stages:
+  - lint
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -m pip install --upgrade pip
+  - pip install -r requirements.txt
+
+lint:
+  stage: lint
+  image: python:3.11
+  script:
+    - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+    - isort --check-only .
+    - black --check .
+    - mypy .
+
+test:
+  stage: test
+  image: python:3.11
+  script:
+    - pytest -v
