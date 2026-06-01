@@ -1,0 +1,39 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]  # запуск при пуше в основные ветки
+  pull_request:
+    branches: [ main, master ]  # и при PR в них
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]  # тестирование на нескольких версиях Python
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest coverage
+          pip install -e .  # если у вас установлен pyproject.toml или setup.py
+
+      - name: Run tests
+        run: |
+          pytest -v --cov=your_package_name tests/
+
+      - name: Upload coverage to Codecov (опционально)
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}  # нужно добавить токен в Secrets
