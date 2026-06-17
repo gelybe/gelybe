@@ -14,6 +14,7 @@ class RecipeList(BaseModel):
         views (int): Количество просмотров рецепта.
         cooking_time (int): Время приготовления в минутах.
     """
+
     id: int
     name: str
     views: int
@@ -31,6 +32,7 @@ class RecipeCreate(BaseModel):
         ingredients (List[str]): Список ингредиентов.
         description (str): Текстовое описание рецепта.
     """
+
     name: str
     cooking_time: int
     ingredients: List[str]
@@ -50,6 +52,7 @@ class RecipeDetail(BaseModel):
         description (str): Текстовое описание рецепта.
         views (int): Количество просмотров рецепта.
     """
+
     id: int
     name: str
     cooking_time: int
