@@ -6,9 +6,11 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import engine, get_db
+from database import engine
+from database import get_db
 from main import app
-from models import Base, Recipe
+from models import Base
+from models import Recipe
 
 
 @pytest_asyncio.fixture(scope="session")
