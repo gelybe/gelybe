@@ -1,12 +1,15 @@
+from typing import AsyncGenerator
+
 import pytest
 import pytest_asyncio
-from typing import AsyncGenerator
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import engine, get_db
 from main import app
-from database import get_db, engine
 from models import Base, Recipe
+
 
 @pytest_asyncio.fixture(scope="session")
 async def setup_database() -> AsyncGenerator[None, None]:
@@ -20,6 +23,7 @@ async def setup_database() -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
+
 @pytest_asyncio.fixture
 async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
     """
@@ -31,6 +35,7 @@ async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
         await session.commit()
         yield session
 
+
 @pytest.fixture
 def client() -> TestClient:
     """
@@ -39,6 +44,7 @@ def client() -> TestClient:
     with TestClient(app) as test_client:
         yield test_client
 
+
 def test_get_recipes_empty(db_session, client):
     """
     Тест получения списка рецептов, когда база пуста.
@@ -46,6 +52,7 @@ def test_get_recipes_empty(db_session, client):
     response = client.get("/recipes")
     assert response.status_code == 200
     assert response.json() == []
+
 
 def test_create_recipe(db_session, client):
     """
@@ -66,6 +73,7 @@ def test_create_recipe(db_session, client):
     assert data["ingredients"] == ["свекла", "картофель", "морковь"]
     assert data["description"] == "Классический украинский борщ."
     assert "id" in data
+
 
 def test_get_recipe_detail(db_session, client):
     """
@@ -93,6 +101,7 @@ def test_get_recipe_detail(db_session, client):
     data2 = response2.json()
     assert data2["views"] == 2
 
+
 def test_get_recipe_not_found(client):
     """
     Тест получения несуществующего рецепта.
@@ -100,6 +109,7 @@ def test_get_recipe_not_found(client):
     response = client.get("/recipes/999")
     assert response.status_code == 404
     assert response.json() == {"detail": "Рецепт не найден"}
+
 
 def test_get_recipes_sorted(db_session, client):
     """

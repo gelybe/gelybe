@@ -1,8 +1,10 @@
-from sqlalchemy import Column, Integer, String, Text, JSON
+from sqlalchemy import JSON, Column, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase
+
 
 class Base(DeclarativeBase):
     pass
+
 
 class Recipe(Base):
     """

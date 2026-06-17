@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import List
+
+from pydantic import BaseModel
+
 
 class RecipeList(BaseModel):
     """
@@ -17,6 +19,7 @@ class RecipeList(BaseModel):
     views: int
     cooking_time: int
 
+
 class RecipeCreate(BaseModel):
     """
     Схема для создания нового рецепта (POST /recipes).
@@ -32,6 +35,7 @@ class RecipeCreate(BaseModel):
     cooking_time: int
     ingredients: List[str]
     description: str
+
 
 class RecipeDetail(BaseModel):
     """
