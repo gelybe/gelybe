@@ -2,20 +2,12 @@ from contextlib import asynccontextmanager
 from typing import List
 
 import uvicorn
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import HTTPException
-from sqlalchemy import select
-from sqlalchemy import update
+from database import engine, get_db
+from fastapi import Depends, FastAPI, HTTPException
+from models import Base, Recipe
+from schemas import RecipeCreate, RecipeDetail, RecipeList
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from database import engine
-from database import get_db
-from models import Base
-from models import Recipe
-from schemas import RecipeCreate
-from schemas import RecipeDetail
-from schemas import RecipeList
 
 
 @asynccontextmanager
@@ -28,14 +20,12 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     yield
 
-
 app = FastAPI(
     title="API Кулинарной Книги",
-    description="Сервис для управления рецептами. Позволяет получать список рецептов, просматривать детали и создавать новые.",
+    description="Сервис для управления рецептами. Позволяет получать список рецептов, просматривать детали и создавать новые рецепты.",
     version="1.0.0",
     lifespan=lifespan,
 )
-
 
 @app.get("/", summary="Корневой эндпоинт")
 async def root() -> dict:
@@ -53,7 +43,6 @@ async def root() -> dict:
         "redoc": "http://localhost:5000/redoc"
     }
 
-
 @app.get("/recipes", response_model=List[RecipeList], summary="Получить список всех рецептов")
 async def get_recipes(db: AsyncSession = Depends(get_db)) -> List[RecipeList]:
     """
@@ -67,7 +56,6 @@ async def get_recipes(db: AsyncSession = Depends(get_db)) -> List[RecipeList]:
     )
     recipes = result.scalars().all()
     return [RecipeList(id=r.id, name=r.name, views=r.views, cooking_time=r.cooking_time) for r in recipes]
-
 
 @app.get("/recipes/{recipe_id}", response_model=RecipeDetail, summary="Получить детальную информацию о рецепте")
 async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)) -> RecipeDetail:
@@ -103,7 +91,6 @@ async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)) 
         views=updated_recipe.views,
     )
 
-
 @app.post("/recipes", response_model=RecipeDetail, summary="Создать новый рецепт")
 async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)) -> RecipeDetail:
     """
@@ -130,7 +117,6 @@ async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)
         description=new_recipe.description,
         views=new_recipe.views,
     )
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=5000)
