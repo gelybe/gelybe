@@ -1,14 +1,15 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
-from sqlalchemy.orm import selectinload
-import uvicorn
 from contextlib import asynccontextmanager
 from typing import List
 
-from database import get_db, engine
+import uvicorn
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import engine, get_db
 from models import Base, Recipe
-from schemas import RecipeCreate, RecipeList, RecipeDetail
+from schemas import RecipeCreate, RecipeDetail, RecipeList
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,7 +29,7 @@ app = FastAPI(
 )
 
 @app.get("/", summary="Корневой эндпоинт")
-async def root():
+async def root() -> dict:
     """
     Возвращает приветственное сообщение и информацию о доступных эндпоинтах.
     """
@@ -44,7 +45,7 @@ async def root():
     }
 
 @app.get("/recipes", response_model=List[RecipeList], summary="Получить список всех рецептов")
-async def get_recipes(db: AsyncSession = Depends(get_db)):
+async def get_recipes(db: AsyncSession = Depends(get_db)) -> List[RecipeList]:
     """
     Возвращает список всех рецептов, отсортированных по популярности (количеству просмотров) в убывающем порядке.
     Если просмотры совпадают, сортировка по времени приготовления в возрастающем порядке.
@@ -58,7 +59,7 @@ async def get_recipes(db: AsyncSession = Depends(get_db)):
     return [RecipeList(id=r.id, name=r.name, views=r.views, cooking_time=r.cooking_time) for r in recipes]
 
 @app.get("/recipes/{recipe_id}", response_model=RecipeDetail, summary="Получить детальную информацию о рецепте")
-async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)):
+async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)) -> RecipeDetail:
     """
     Возвращает детальную информацию о рецепте по его ID.
     При каждом просмотре количество просмотров увеличивается на 1.
@@ -92,7 +93,7 @@ async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)):
     )
 
 @app.post("/recipes", response_model=RecipeDetail, summary="Создать новый рецепт")
-async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)):
+async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)) -> RecipeDetail:
     """
     Создает новый рецепт на основе предоставленных данных.
 

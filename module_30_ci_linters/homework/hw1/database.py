@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -17,7 +19,7 @@ AsyncSessionLocal = sessionmaker(
     expire_on_commit=False,
 )
 
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Функция для получения асинхронной сессии базы данных.
 

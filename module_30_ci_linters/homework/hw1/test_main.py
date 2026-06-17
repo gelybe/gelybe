@@ -1,15 +1,18 @@
+from typing import AsyncGenerator
+
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database import engine, get_db
 from main import app
-from database import get_db, engine
 from models import Base, Recipe
 
+
 @pytest_asyncio.fixture(scope="session")
-async def setup_database():
+async def setup_database() -> AsyncGenerator[None, None]:
     """
     Фикстура для настройки базы данных перед тестами.
     Создает таблицы и очищает их после тестов.
@@ -21,7 +24,7 @@ async def setup_database():
         await conn.run_sync(Base.metadata.drop_all)
 
 @pytest_asyncio.fixture
-async def db_session(setup_database):
+async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
     """
     Фикстура для создания сессии базы данных для каждого теста.
     """
@@ -32,7 +35,7 @@ async def db_session(setup_database):
         yield session
 
 @pytest.fixture
-def client():
+def client() -> TestClient:
     """
     Фикстура для создания тестового клиента для тестирования API.
     """
