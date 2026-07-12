@@ -22,18 +22,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
 
-      # Устанавливаем зависимости из корневого requirements.txt (или pyproject.toml)
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Если у тебя есть корневой requirements.txt с линтерами — используй его
+          # Важно: линтеры должны быть в этом requirements.txt
           pip install -r requirements.txt
-          # ИЛИ, если линтеры описаны в pyproject.toml, можно ставить так:
-          # pip install .[dev]
-          # или явно:
-          # pip install black isort flake8 mypy pytest
 
-      # Линтеры запускаем из корня проекта, чтобы они видели pyproject.toml
+      # Линтеры запускаем из корня, чтобы они видели pyproject.toml
       - name: Run flake8
         run: |
           flake8 homework/hw1 --count --select=E9,F63,F7,F82 --show-source --statistics
@@ -51,6 +46,7 @@ jobs:
         run: |
           mypy homework/hw1
 
+      # Тесты — с working-directory, чтобы pytest видел пути правильно
       - name: Run tests
         working-directory: homework/hw1
         run: |
