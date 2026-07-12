@@ -7,6 +7,6 @@ httpx==0.25.2
 pytest==7.4.3
 pytest-asyncio==0.21.1
 flake8==7.0.0
-isort==5.13.2
-black==24.4.2
-mypy==1.10.0
+isort==5.13.0,<6.0
+black==24.8.0
+mypy==1.14.0
