@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -20,9 +20,3 @@ extend-exclude = '''
 profile = "black"
 line_length = 88
 skip_gitignore = true
-
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
