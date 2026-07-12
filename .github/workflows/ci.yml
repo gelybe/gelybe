@@ -41,7 +41,7 @@ jobs:
       - name: Run isort
         working-directory: homework/hw1
         run: |
-          isort --check-only .
+          isort --check-only --settings-file .isort.cfg .
 
       - name: Run black
         working-directory: homework/hw1
