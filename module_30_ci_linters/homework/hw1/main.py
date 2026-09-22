@@ -50,10 +50,15 @@ async def root() -> dict:
     }
 
 
-@app.get("/recipes", response_model=List[RecipeList], summary="Получить список всех рецептов")
+@app.get(
+    "/recipes",
+    response_model=List[RecipeList],
+    summary="Получить список всех рецептов",
+)
 async def get_recipes(db: AsyncSession = Depends(get_db)) -> List[RecipeList]:
     """
-    Возвращает список всех рецептов, отсортированных по популярности (количеству просмотров) в убывающем порядке.
+    Возвращает список всех рецептов, отсортированных по популярности
+    (количеству просмотров) в убывающем порядке.
     Если просмотры совпадают, сортировка по времени приготовления в возрастающем порядке.
 
     - **Возвращает**: Список рецептов с полями id, name, views, cooking_time.
@@ -109,14 +114,19 @@ async def get_recipe_detail(
     )
 
 
-@app.post("/recipes", response_model=RecipeDetail, summary="Создать новый рецепт")
+@app.post(
+    "/recipes",
+    response_model=RecipeDetail,
+    summary="Создать новый рецепт",
+)
 async def create_recipe(
     recipe: RecipeCreate, db: AsyncSession = Depends(get_db)
 ) -> RecipeDetail:
     """
     Создает новый рецепт на основе предоставленных данных.
 
-    - **recipe**: Данные для создания рецепта (name, cooking_time, ingredients, description).
+    - **recipe**: Данные для создания рецепта (name, cooking_time,
+      ingredients, description).
     - **Возвращает**: Созданный рецепт с присвоенным ID и views=0.
     """
     new_recipe = Recipe(
