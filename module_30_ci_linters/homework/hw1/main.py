@@ -21,12 +21,14 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     yield
 
+
 app = FastAPI(
     title="API Кулинарной Книги",
     description="Сервис для управления рецептами. Позволяет получать список рецептов, просматривать детали и создавать новые рецепты.",
     version="1.0.0",
     lifespan=lifespan,
 )
+
 
 @app.get("/", summary="Корневой эндпоинт")
 async def root() -> dict:
@@ -38,11 +40,12 @@ async def root() -> dict:
         "endpoints": {
             "GET /recipes": "Получить список всех рецептов",
             "GET /recipes/{recipe_id}": "Получить детальную информацию о рецепте",
-            "POST /recipes": "Создать новый рецепт"
+            "POST /recipes": "Создать новый рецепт",
         },
         "docs": "http://localhost:5000/docs",
-        "redoc": "http://localhost:5000/redoc"
+        "redoc": "http://localhost:5000/redoc",
     }
+
 
 @app.get("/recipes", response_model=List[RecipeList], summary="Получить список всех рецептов")
 async def get_recipes(db: AsyncSession = Depends(get_db)) -> List[RecipeList]:
@@ -56,10 +59,20 @@ async def get_recipes(db: AsyncSession = Depends(get_db)) -> List[RecipeList]:
         select(Recipe).order_by(Recipe.views.desc(), Recipe.cooking_time.asc())
     )
     recipes = result.scalars().all()
-    return [RecipeList(id=r.id, name=r.name, views=r.views, cooking_time=r.cooking_time) for r in recipes]
+    return [
+        RecipeList(id=r.id, name=r.name, views=r.views, cooking_time=r.cooking_time)
+        for r in recipes
+    ]
 
-@app.get("/recipes/{recipe_id}", response_model=RecipeDetail, summary="Получить детальную информацию о рецепте")
-async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)) -> RecipeDetail:
+
+@app.get(
+    "/recipes/{recipe_id}",
+    response_model=RecipeDetail,
+    summary="Получить детальную информацию о рецепте",
+)
+async def get_recipe_detail(
+    recipe_id: int, db: AsyncSession = Depends(get_db)
+) -> RecipeDetail:
     """
     Возвращает детальную информацию о рецепте по его ID.
     При каждом просмотре количество просмотров увеличивается на 1.
@@ -92,8 +105,11 @@ async def get_recipe_detail(recipe_id: int, db: AsyncSession = Depends(get_db)) 
         views=updated_recipe.views,
     )
 
+
 @app.post("/recipes", response_model=RecipeDetail, summary="Создать новый рецепт")
-async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)) -> RecipeDetail:
+async def create_recipe(
+    recipe: RecipeCreate, db: AsyncSession = Depends(get_db)
+) -> RecipeDetail:
     """
     Создает новый рецепт на основе предоставленных данных.
 
@@ -118,6 +134,7 @@ async def create_recipe(recipe: RecipeCreate, db: AsyncSession = Depends(get_db)
         description=new_recipe.description,
         views=new_recipe.views,
     )
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost", port=5000)

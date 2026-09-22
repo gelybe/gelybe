@@ -18,6 +18,7 @@ AsyncSessionLocal = sessionmaker(
     expire_on_commit=False,
 )
 
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Функция для получения асинхронной сессии базы данных.

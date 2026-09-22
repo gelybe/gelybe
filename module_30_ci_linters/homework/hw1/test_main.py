@@ -23,6 +23,7 @@ async def setup_database() -> AsyncGenerator[None, None]:
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
+
 @pytest_asyncio.fixture
 async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
     """
@@ -34,6 +35,7 @@ async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
         await session.commit()
         yield session
 
+
 @pytest.fixture
 def client() -> TestClient:
     """
@@ -41,6 +43,7 @@ def client() -> TestClient:
     """
     with TestClient(app) as test_client:
         yield test_client
+
 
 def test_get_recipes_empty(db_session, client):
     """
@@ -50,6 +53,7 @@ def test_get_recipes_empty(db_session, client):
     assert response.status_code == 200
     assert response.json() == []
 
+
 def test_create_recipe(db_session, client):
     """
     Тест создания нового рецепта.
@@ -58,7 +62,7 @@ def test_create_recipe(db_session, client):
         "name": "Борщ",
         "cooking_time": 60,
         "ingredients": ["свекла", "картофель", "морковь"],
-        "description": "Классический украинский борщ."
+        "description": "Классический украинский борщ.",
     }
     response = client.post("/recipes", json=recipe_data)
     assert response.status_code == 200
@@ -70,6 +74,7 @@ def test_create_recipe(db_session, client):
     assert data["description"] == "Классический украинский борщ."
     assert "id" in data
 
+
 def test_get_recipe_detail(db_session, client):
     """
     Тест получения детальной информации о рецепте и увеличения просмотров.
@@ -79,7 +84,7 @@ def test_get_recipe_detail(db_session, client):
         "name": "Паста",
         "cooking_time": 20,
         "ingredients": ["макароны", "соус"],
-        "description": "Простая паста."
+        "description": "Простая паста.",
     }
     create_response = client.post("/recipes", json=recipe_data)
     recipe_id = create_response.json()["id"]
@@ -96,6 +101,7 @@ def test_get_recipe_detail(db_session, client):
     data2 = response2.json()
     assert data2["views"] == 2
 
+
 def test_get_recipe_not_found(client):
     """
     Тест получения несуществующего рецепта.
@@ -104,15 +110,31 @@ def test_get_recipe_not_found(client):
     assert response.status_code == 404
     assert response.json() == {"detail": "Рецепт не найден"}
 
+
 def test_get_recipes_sorted(db_session, client):
     """
     Тест сортировки рецептов по просмотрам и времени приготовления.
     """
     # Создаем рецепты с разными views и cooking_time
     recipes = [
-        {"name": "Рецепт1", "cooking_time": 30, "ingredients": ["инг1"], "description": "desc1"},
-        {"name": "Рецепт2", "cooking_time": 20, "ingredients": ["инг2"], "description": "desc2"},
-        {"name": "Рецепт3", "cooking_time": 40, "ingredients": ["инг3"], "description": "desc3"},
+        {
+            "name": "Рецепт1",
+            "cooking_time": 30,
+            "ingredients": ["инг1"],
+            "description": "desc1",
+        },
+        {
+            "name": "Рецепт2",
+            "cooking_time": 20,
+            "ingredients": ["инг2"],
+            "description": "desc2",
+        },
+        {
+            "name": "Рецепт3",
+            "cooking_time": 40,
+            "ingredients": ["инг3"],
+            "description": "desc3",
+        },
     ]
     ids = []
     for r in recipes:

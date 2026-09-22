@@ -5,6 +5,7 @@ from sqlalchemy.orm import DeclarativeBase
 class Base(DeclarativeBase):
     pass
 
+
 class Recipe(Base):
     """
     Модель рецепта в базе данных.
@@ -17,6 +18,7 @@ class Recipe(Base):
         ingredients (list): Список ингредиентов (хранится как JSON).
         description (str): Текстовое описание рецепта.
     """
+
     __tablename__ = "recipes"
 
     id = Column(Integer, primary_key=True, index=True)
