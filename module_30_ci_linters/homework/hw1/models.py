@@ -1,5 +1,7 @@
-from sqlalchemy import JSON, Column, Integer, String, Text
-from sqlalchemy.orm import DeclarativeBase
+from typing import List
+
+from sqlalchemy import JSON, Integer, String, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -21,9 +23,9 @@ class Recipe(Base):
 
     __tablename__ = "recipes"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    views = Column(Integer, default=0)
-    cooking_time = Column(Integer, nullable=False)
-    ingredients = Column(JSON, nullable=False)
-    description = Column(Text, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    views: Mapped[int] = mapped_column(Integer, default=0)
+    cooking_time: Mapped[int] = mapped_column(Integer, nullable=False)
+    ingredients: Mapped[List[str]] = mapped_column(JSON, nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)

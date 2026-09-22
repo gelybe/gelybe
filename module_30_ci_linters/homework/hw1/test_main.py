@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
@@ -37,7 +37,7 @@ async def db_session(setup_database) -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture
-def client() -> TestClient:
+def client() -> Generator[TestClient, None, None]:
     """
     Фикстура для создания тестового клиента для тестирования API.
     """
