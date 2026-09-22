@@ -52,7 +52,7 @@ jobs:
       - name: Run mypy
         working-directory: homework/hw1
         run: |
-          mypy .
+          mypy . --explicit-package-bases
 
       - name: Run tests
         working-directory: homework/hw1
