@@ -11,7 +11,7 @@ from main import app
 from models import Base, Recipe
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def setup_database() -> AsyncGenerator[None, None]:
     """
     Фикстура для настройки базы данных перед тестами.
